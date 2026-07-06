@@ -3,7 +3,10 @@
   <img src="https://img.shields.io/badge/Ollama-000?style=for-the-badge&logo=ollama&logoColor=white">
   <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white">
   <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white">
+  <img src="https://img.shields.io/badge/Status-Design%20Document-yellow?style=for-the-badge">
 </div>
+
+> **⚠️ Status: Design Document** — This repository describes a planned benchmarking platform. Currently only `collector/system_info.py` is implemented. The Quick Start commands below document the design vision; they will produce `FileNotFoundError` until the modules are built. See the [Architecture](#-architecture) section for the full design.
 
 <br>
 
