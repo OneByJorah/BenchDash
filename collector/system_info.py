@@ -5,6 +5,7 @@ System information collector: CPU, RAM, GPU, VRAM, CUDA, drivers, OS, versions.
 import json
 import platform
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -12,9 +13,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def run(cmd: str, default=None):
+def run(cmd: str, default=None, shell: bool = False):
+    """Run a command and return its stdout.
+
+    Args:
+        cmd: Command string. When shell=False, split via shlex.
+        default: Value returned on failure.
+        shell: Set to True for pipe-based commands (e.g. ``lscpu | grep ...``).
+    """
     try:
-        out = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
+        args = cmd if shell else shlex.split(cmd)
+        out = subprocess.run(args, shell=shell, capture_output=True, text=True, timeout=30)
         return out.stdout.strip() if out.returncode == 0 else default
     except Exception:
         return default
@@ -22,7 +31,7 @@ def run(cmd: str, default=None):
 
 def collect():
     info = {
-        "cpu": run("lscpu | grep 'Model name' | cut -d: -f2 | xargs") or run("sysctl -n machdep.cpu.brand_string"),
+        "cpu": run("lscpu | grep 'Model name' | cut -d: -f2 | xargs", shell=True) or run("sysctl -n machdep.cpu.brand_string"),
         "cpu_cores": None,
         "ram_gb": None,
         "gpu": None,
@@ -47,7 +56,7 @@ def collect():
             info["cpu_cores"] = int(m.group(1))
 
     # RAM
-    meminfo = run("cat /proc/meminfo | grep MemTotal")
+    meminfo = run("cat /proc/meminfo | grep MemTotal", shell=True)
     if meminfo:
         kb = int(re.search(r"\d+", meminfo).group())
         info["ram_gb"] = round(kb / 1024 / 1024, 1)
@@ -60,7 +69,7 @@ def collect():
         info["vram_total_mb"] = int(re.search(r"\d+", parts[1]).group()) if len(parts) > 1 else None
         info["driver_version"] = parts[2] if len(parts) > 2 else None
 
-    cu = run("nvcc --version | grep release") or run("cat /usr/local/cuda/version.txt 2>/dev/null")
+    cu = run("nvcc --version | grep release", shell=True) or run("cat /usr/local/cuda/version.txt 2>/dev/null", shell=True)
     if cu:
         m = re.search(r"(\d+\.\d+)", cu)
         info["cuda_version"] = m.group(1) if m else None
@@ -78,12 +87,12 @@ def collect():
         info["docker_version"] = m.group(1) if m else dv
 
     # Storage
-    df = run("df -h / | tail -1")
+    df = run("df -h / | tail -1", shell=True)
     if df:
         info["storage_speed"] = "N/A (use hdparm/benchmark for speed)"
 
     # PCIe
-    lspci = run(r"lspci | grep -iE 'VGA|3D|NVIDIA'")
+    lspci = run(r"lspci | grep -iE 'VGA|3D|NVIDIA'", shell=True)
     info["pcie_info"] = lspci or "N/A"
 
     return info
