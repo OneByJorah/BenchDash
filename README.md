@@ -101,7 +101,9 @@ python3 dashboard_server.py
 DASHBOARD_PORT=3000 DASHBOARD_HOST=127.0.0.1 python3 dashboard_server.py
 ```
 
-Then open **http://localhost:8081** in your browser.
+Then open **http://localhost:8081** (or **http://127.0.0.1:8081**) in your browser.
+
+> **Note:** The default `DASHBOARD_HOST=0.0.0.0` binds to all interfaces. For local-only access, set `DASHBOARD_HOST=127.0.0.1`.
 
 ## 🏗️ Architecture
 
