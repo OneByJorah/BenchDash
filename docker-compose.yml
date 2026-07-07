@@ -1,7 +1,7 @@
 version: "3.9"
 
 # ============================================================================
-# Ollama Benchmark Dashboard — LLM benchmarking platform
+# BenchDash — LLM benchmarking platform
 # JorahOne
 #
 # Auto-discover models → Run multi-dimensional tests → Rank & score → Visualize
@@ -12,8 +12,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jorahone/ollama-benchmark-dashboard:latest
-    container_name: ollama-benchmark-dashboard
+    image: jorahone/benchdash:latest
+    container_name: benchdash
     ports:
       - "${DASHBOARD_PORT:-8081}:${DASHBOARD_PORT:-8081}"
     env_file:

@@ -1,4 +1,4 @@
-# ollama-benchmark-dashboard — Fixes and Enhancements
+# BenchDash — Fixes and Enhancements
 
 ## Changes Made
 
