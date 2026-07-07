@@ -1,0 +1,44 @@
+version: "3.9"
+
+# ============================================================================
+# Ollama Benchmark Dashboard — LLM benchmarking platform
+# JorahOne
+#
+# Auto-discover models → Run multi-dimensional tests → Rank & score → Visualize
+# ============================================================================
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jorahone/ollama-benchmark-dashboard:latest
+    container_name: ollama-benchmark-dashboard
+    ports:
+      - "${DASHBOARD_PORT:-8081}:${DASHBOARD_PORT:-8081}"
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-host.docker.internal:11434}
+      - DASHBOARD_PORT=${DASHBOARD_PORT:-8081}
+      - DASHBOARD_HOST=${DASHBOARD_HOST:-0.0.0.0}
+      - BENCH_SKIP_MEDIA=${BENCH_SKIP_MEDIA:-0}
+    volumes:
+      # Persist benchmark results and database
+      - benchmark-data:/app/results
+      - benchmark-db:/app/benchmark.db
+      # Mount Docker socket for container-aware benchmarks (optional)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${DASHBOARD_PORT:-8081}/api/summary"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  benchmark-data:
+  benchmark-db:
