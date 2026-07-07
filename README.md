@@ -11,7 +11,7 @@
 <br>
 
 <div align="center">
-  <h1>🧪 Ollama Benchmark Dashboard</h1>
+  <h1>🧪 BenchDash</h1>
   <p><strong>A comprehensive, automated benchmarking platform for local LLMs running on Ollama</strong></p>
   <p>Auto-discover models → Run multi-dimensional tests → Rank & score → Visualize results</p>
 
@@ -60,8 +60,8 @@ This is a CLI/backend-only tool. No screenshots available.
 
 ```bash
 # Clone the repo
-git clone https://github.com/OneByJorah/ollama-benchmark-dashboard.git
-cd ollama-benchmark-dashboard
+git clone https://github.com/OneByJorah/BenchDash.git
+cd BenchDash
 
 # No pip dependencies required — uses Python stdlib + Ollama API
 # The dashboard uses Chart.js loaded via CDN
@@ -108,7 +108,7 @@ Then open **http://localhost:8081** (or **http://127.0.0.1:8081**) in your brows
 ## 🏗️ Architecture
 
 ```
-ollama-benchmark-dashboard/
+|BenchDash/
 ├── orchestrator.py              # Main runner: discovery → benchmarks → ranking → reporting
 ├── run_benchmark.py             # Alternative runner with agent mode support (direct/hermes/claude)
 ├── run_one_model.py             # Single model benchmark script
