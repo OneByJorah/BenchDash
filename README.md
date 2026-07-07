@@ -25,6 +25,10 @@
 
 ---
 
+## 📸 Screenshot
+
+This is a CLI/backend-only tool. No screenshots available.
+
 ## ✨ Features
 
 - **Automated Model Discovery** — Detects all Ollama models on your host and runs benchmarks smallest → largest
