@@ -1,11 +1,10 @@
 # Roadmap
 
 ## Current
-- Production stability improvements
-- Documentation enhancements
-- Test coverage expansion
+- System-profile collection + live dashboard (shipped, OPERATIONAL).
 
 ## Next
-- Feature enhancements
-- Performance optimization
-- Community contributions
+- Multi-dimensional LLM benchmarking against Ollama (the original design goal).
+- SQLite persistence of benchmark runs + leaderboard/ranking.
+- CSV / JSON / Markdown report exports.
+- Telegram notifications for run completion.
