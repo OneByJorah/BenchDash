@@ -303,7 +303,7 @@ python3 run_benchmark.py --mode direct --model gemma2:9b --task 2 --skip-media
 
 ## 📄 License
 
-MIT © Jhonattan L. Jimenez
+MIT © Jhonattan L. Jimenez / JorahOne LLC
 
 ---
 
