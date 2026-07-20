@@ -44,7 +44,7 @@ def collect():
         "python_version": sys.version.split()[0],
         "ollama_version": None,
         "docker_version": None,
-        "storage_speed": None,
+        "storage": None,
         "pcie_info": None,
     }
 
@@ -86,10 +86,18 @@ def collect():
         m = re.search(r"(\d+\.\d+\.\d+)", dv)
         info["docker_version"] = m.group(1) if m else dv
 
-    # Storage
+    # Storage — root filesystem total / used
     df = run("df -h / | tail -1", shell=True)
     if df:
-        info["storage_speed"] = "N/A (use hdparm/benchmark for speed)"
+        parts = df.split()
+        if len(parts) >= 5:
+            info["storage"] = {
+                "filesystem": parts[0],
+                "size": parts[1],
+                "used": parts[2],
+                "avail": parts[3],
+                "mount": parts[5] if len(parts) > 5 else parts[-1],
+            }
 
     # PCIe
     lspci = run(r"lspci | grep -iE 'VGA|3D|NVIDIA'", shell=True)

@@ -1,0 +1,3 @@
+# static/ — optional static assets served under /static/<name>
+# The dashboard UI is rendered server-side by app.py; this directory is
+# reserved for future assets (icons, css). Kept so Docker COPY succeeds.
