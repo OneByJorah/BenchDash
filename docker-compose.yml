@@ -1,12 +1,7 @@
-version: "3.9"
-
-# ============================================================================
-# BenchDash — LLM benchmarking platform
-# JorahOne
-#
-# Auto-discover models → Run multi-dimensional tests → Rank & score → Visualize
-# ============================================================================
-
+# =============================================================================
+# BenchDash — local system profile dashboard
+# JorahOne LLC
+# =============================================================================
 services:
   dashboard:
     build:
@@ -15,30 +10,14 @@ services:
     image: jorahone/benchdash:latest
     container_name: benchdash
     ports:
-      - "${DASHBOARD_PORT:-8081}:${DASHBOARD_PORT:-8081}"
-    env_file:
-      - .env
+      - "${DASHBOARD_PORT:-8081}:8081"
     environment:
-      - OLLAMA_HOST=${OLLAMA_HOST:-host.docker.internal:11434}
-      - DASHBOARD_PORT=${DASHBOARD_PORT:-8081}
-      - DASHBOARD_HOST=${DASHBOARD_HOST:-0.0.0.0}
-      - BENCH_SKIP_MEDIA=${BENCH_SKIP_MEDIA:-0}
-    volumes:
-      # Persist benchmark results and database
-      - benchmark-data:/app/results
-      - benchmark-db:/app/benchmark.db
-      # Mount Docker socket for container-aware benchmarks (optional)
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - DASHBOARD_HOST=0.0.0.0
+      - DASHBOARD_PORT=8081
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${DASHBOARD_PORT:-8081}/api/summary"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/health"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
-
-volumes:
-  benchmark-data:
-  benchmark-db:
+      start_period: 5s

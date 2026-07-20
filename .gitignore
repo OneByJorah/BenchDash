@@ -22,3 +22,7 @@ build/
 *.log
 # Pipeline artifacts
 reports/
+results/
+outputs/
+system_info.json
+*.db

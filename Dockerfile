@@ -1,25 +1,31 @@
 # =============================================================================
-# Ollama Benchmark Dashboard — LLM benchmarking platform
-# JorahOne
+# BenchDash — local system profile dashboard (stdlib-only Python)
+# JorahOne LLC
 # =============================================================================
-FROM python:3.11-alpine
+FROM python:3.12-alpine
+
+# procps/pciutils give the collector real data inside the container;
+# curl is used by the HEALTHCHECK.
+RUN apk add --no-cache curl procps pciutils util-linux
 
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
-
-# Copy application
+# Application code
 COPY collector/ ./collector/
-COPY *.md ./
+COPY app.py benchdash.py ./
+COPY static/ ./static/
 
-# Create runtime directories
-RUN mkdir -p results outputs data
+RUN mkdir -p results outputs \
+    && addgroup -S bench && adduser -S bench -G bench \
+    && chown -R bench:bench /app
+USER bench
+
+ENV DASHBOARD_HOST=0.0.0.0 \
+    DASHBOARD_PORT=8081
 
 EXPOSE 8081
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${DASHBOARD_PORT:-8081}/ || exit 1
+    CMD curl -f "http://localhost:${DASHBOARD_PORT}/api/health" || exit 1
 
-# Collect system info on startup
-CMD ["python3", "collector/system_info.py"]
+CMD ["python3", "app.py"]
