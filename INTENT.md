@@ -5,6 +5,8 @@
 **Analyst:** J1-PIPELINE ORACLE (read-only)
 **Status:** Intent Reconstructed (updated from prior ORACLE run)
 
+> **Update 2026-08-22:** Since this analysis, the repo gained `index.html` (standalone dashboard UI, sample data), `Dockerfile`, `docker-compose.yml`, `.env.example`, `docs/`, `j1.yaml`, `.dockerignore`, and `CODEOWNERS` — several "missing" items listed below now exist. The core finding stands: the benchmark backend (`app.py`, runner, scoring, persistence, scheduler, notifications) is still unimplemented. See README status banner.
+
 ---
 
 ## What This System Does

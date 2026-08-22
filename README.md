@@ -18,21 +18,28 @@
 
 ---
 
+> **⚠️ Project status:** BenchDash is in early development (design-first). Currently implemented: the **system telemetry collector** (`collector/system_info.py`) and the **standalone dashboard UI** (`index.html`, running on sample data). The benchmark engine, scoring, persistence, scheduler, notifications, and Flask backend described below are **planned, not yet implemented**. See [INTENT.md](INTENT.md) for the full design.
+
 <p align="center">
   <img src="docs/assets/screenshot.png" alt="BenchDash Dashboard Preview" width="90%">
   <br>
-  <sub><i>BenchDash live dashboard — model leaderboard, performance charts, and system telemetry</i></sub>
+  <sub><i>BenchDash dashboard (sample data) — leaderboard, performance charts, system stats</i><br>
+  Screenshot: headless Chromium capture of the static UI served locally; charts render bundled sample data.</sub>
 </p>
 
 ---
 
-## Features
+## Implemented
+
+- **Standalone Dashboard UI** — Chart.js-powered single-file page with leaderboards, radar charts, speed metrics, and success-rate breakdown
+- **System Telemetry Collector** — Collects CPU, RAM, GPU, VRAM, CUDA, driver, OS, kernel, Python/Ollama/Docker versions to `system_info.json`
+
+## Planned
 
 - **Auto-Discovery** — Automatically discover all Ollama models on the host
 - **Multi-Dimension Benchmarks** — 13+ test categories: knowledge, code, math, reasoning, creativity, conversation, vision, generation, game dev, error resilience, consistency, context stress
 - **Multi-Agent Modes** — Compare models via raw Ollama API, Hermes Agent, and Claude Code
-- **Real-Time Dashboard** — Chart.js-powered UI with leaderboards, radar charts, and speed metrics
-- **System Telemetry** — Collect CPU, RAM, GPU, VRAM, CUDA, driver, and OS metrics alongside every run
+- **System Telemetry per Run** — Attach GPU/VRAM/CUDA metrics to every benchmark run
 - **History Tracking** — SQLite persistence with per-model JSON exports for trend analysis
 - **Scoring System** — Discrete-tier scoring (0.1–1.0) with per-category and overall leaderboards
 - **Export** — Results to CSV, JSON, and Markdown report formats
@@ -41,44 +48,36 @@
 
 ## Quick Start
 
-```bash
-git clone https://github.com/OneByJorah/BenchDash.git
-cd BenchDash
+### Dashboard UI
 
-pip install -r requirements.txt
-python3 app.py
-```
-
-Open **http://localhost:5000** in your browser.
-
-### Docker
-
-```bash
-docker compose up -d
-```
-
-Then open **http://localhost:5000**.
-
-### Dashboard Only
-
-The standalone dashboard (`index.html`) requires no server — just open it in a browser, or serve it:
+The standalone dashboard (`index.html`) requires no server and no dependencies — just open it in a browser, or serve it:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Open **http://localhost:8080**.
+Open **http://localhost:8080**. The page currently renders bundled sample data.
+
+### System Telemetry Collector
+
+```bash
+python3 collector/system_info.py
+```
+
+Writes a hardware/software report to `system_info.json` (CPU, RAM, GPU/VRAM via `nvidia-smi`, CUDA, drivers, OS, versions).
 
 ## Configuration
 
+Environment variables consumed by the upcoming backend (see `.env.example`; currently informational):
+
 | Variable | Default | Description |
 |---|---|---|
-| `OLLAMA_URL` | `http://localhost:11434` | Ollama API endpoint |
-| `PORT` | `5000` | Dashboard port |
-| `BENCHMARK_PROMPTS` | — | Custom benchmark prompts file |
-| `RESULTS_DIR` | `./results` | Benchmark results storage |
+| `OLLAMA_HOST` | `host.docker.internal:11434` | Ollama API endpoint |
+| `DASHBOARD_PORT` | `8081` | Dashboard port |
+| `DASHBOARD_HOST` | `0.0.0.0` | Dashboard bind address |
+| `BENCH_SKIP_MEDIA` | `0` | Skip image/audio/video tests when set to `1` |
 
-## Architecture
+## Target Architecture
 
 ```
                     ┌─────────────────┐
@@ -104,34 +103,25 @@ Open **http://localhost:8080**.
         └──────────┘  └──────────┘
 ```
 
+*Not yet implemented — target architecture for the benchmarking backend.*
+
 ## Project Structure
 
 ```
 BenchDash/
-├── index.html                  # Standalone dashboard UI
-├── app.py                      # Flask application server
+├── index.html                  # Standalone dashboard UI (sample data)
 ├── collector/
 │   └── system_info.py          # System telemetry collector
-├── bench/
-│   ├── __init__.py
-│   ├── runner.py               # Benchmark execution engine
-│   ├── analyzer.py             # Results analysis & scoring
-│   └── prompts/                # Benchmark prompt definitions
-├── templates/                  # Flask HTML templates
-├── static/                     # CSS, JS, Chart.js assets
-├── results/                    # Benchmark output artifacts
 ├── docs/
-│   └── assets/
-│       ├── banner.svg          # Project banner
-│       └── screenshot.png      # Dashboard screenshot
-├── .github/                    # CI, issue templates, Dependabot
-├── Dockerfile                  # Container definition
-├── docker-compose.yml          # Multi-service orchestration
-├── requirements.txt            # Python dependencies
+│   ├── assets/                 # Banner + dashboard screenshot
+│   └── screenshots/            # Additional UI captures
+├── .github/                    # CI (CodeQL), issue templates, Dependabot
+├── Dockerfile                  # Container definition (backend pending)
+├── docker-compose.yml          # Service scaffolding (backend pending)
 └── README.md
 ```
 
-## Benchmark Metrics
+## Planned Benchmark Metrics
 
 | Metric | Description |
 |---|---|
