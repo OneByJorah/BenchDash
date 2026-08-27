@@ -20,7 +20,7 @@ services:
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST:-host.docker.internal:11434}
       - DASHBOARD_PORT=${DASHBOARD_PORT:-8081}
-      - DASHBOARD_HOST=${DASHBOARD_HOST:-0.0.0.0}
+      - DASHBOARD_HOST=${DASHBOARD_HOST:-<ip-address>}
       - BENCH_SKIP_MEDIA=${BENCH_SKIP_MEDIA:-0}
     volumes:
       # Persist benchmark results
