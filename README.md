@@ -1,164 +1,190 @@
-<div align="center">
-
 ![BenchDash](docs/assets/banner.svg)
 
 # BenchDash
 
-**Automated benchmarking platform for local LLMs on Ollama**
+![Status](https://img.shields.io/badge/status-design--first-orange)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/OneByJorah/BenchDash/pulls)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://python.org)
-[![Ollama](https://img.shields.io/badge/Ollama-0.5%2B-black?logo=ollama)](https://ollama.ai)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](CONTRIBUTING.md)
-[![GitHub stars](https://img.shields.io/github/stars/OneByJorah/BenchDash?style=flat&logo=github)](https://github.com/OneByJorah/BenchDash/stargazers)
-[![CodeQL](https://img.shields.io/github/actions/workflow/status/OneByJorah/BenchDash/codeql.yml?branch=main&label=CodeQL&logo=github)](https://github.com/OneByJorah/BenchDash/actions)
-[![Dashboard](https://img.shields.io/badge/dashboard-live-38bdf8?logo=html5)](index.html)
+> Automated benchmarking platform for local LLMs running on [Ollama](https://ollama.com/).
 
-</div>
+BenchDash is an early-stage, design-first platform for running structured benchmarks against local LLMs served by Ollama. The system collects hardware telemetry, runs configurable benchmark tasks, and scores model responses on accuracy, latency, and token throughput. Results are stored as JSON and displayed through a lightweight, zero-dependency dashboard.
+
+**⚠️ Project Status: Pre-Alpha** — Benchmark engine, scoring pipeline, and persistence layer are planned but not yet implemented. The dashboard currently displays sample/demo data. See [Implementation Status](#implementation-status) for details.
 
 ---
 
-> **⚠️ Project status:** BenchDash is in early development (design-first). Currently implemented: the **system telemetry collector** (`collector/system_info.py`) and the **standalone dashboard UI** (`index.html`, running on sample data). The benchmark engine, scoring, persistence, scheduler, notifications, and Flask backend described below are **planned, not yet implemented**. See [INTENT.md](INTENT.md) for the full design.
+## Key Features
 
-<p align="center">
-  <img src="docs/assets/screenshot.png" alt="BenchDash Dashboard Preview" width="90%">
-  <br>
-  <sub><i>BenchDash dashboard (sample data) — leaderboard, performance charts, system stats</i><br>
-  Screenshot: headless Chromium capture of the static UI served locally; charts render bundled sample data.</sub>
-</p>
+- **System Telemetry Collector** — Gathers CPU, GPU, memory, and OS info in Python.
+- **Static Dashboard** — Standalone `index.html` UI with no build step or dependencies; shows model comparisons, scores, and system metrics.
+- **Ollama Integration** — Designed to query local Ollama API for available models and run inference benchmarks.
+- **Docker Support** — Production-ready Dockerfile and docker-compose for containerized deployment.
+- **Configurable Benchmarks** — YAML-based task definitions for evaluation categories, weights, and scoring.
+- **JSON Persistence** — All benchmark results stored as timestamped JSON files for historical analysis.
 
 ---
-
-## Implemented
-
-- **Standalone Dashboard UI** — Chart.js-powered single-file page with leaderboards, radar charts, speed metrics, and success-rate breakdown
-- **System Telemetry Collector** — Collects CPU, RAM, GPU, VRAM, CUDA, driver, OS, kernel, Python/Ollama/Docker versions to `system_info.json`
-
-## Planned
-
-- **Auto-Discovery** — Automatically discover all Ollama models on the host
-- **Multi-Dimension Benchmarks** — 13+ test categories: knowledge, code, math, reasoning, creativity, conversation, vision, generation, game dev, error resilience, consistency, context stress
-- **Multi-Agent Modes** — Compare models via raw Ollama API, Hermes Agent, and Claude Code
-- **System Telemetry per Run** — Attach GPU/VRAM/CUDA metrics to every benchmark run
-- **History Tracking** — SQLite persistence with per-model JSON exports for trend analysis
-- **Scoring System** — Discrete-tier scoring (0.1–1.0) with per-category and overall leaderboards
-- **Export** — Results to CSV, JSON, and Markdown report formats
-- **Scheduling** — Cron-style daily/weekly/monthly automated benchmarks
-- **Notifications** — Telegram integration for run completion alerts
 
 ## Quick Start
 
-### Dashboard UI
+### Prerequisites
 
-The standalone dashboard (`index.html`) requires no server and no dependencies — just open it in a browser, or serve it:
+- Python 3.11+
+- Ollama running locally (`http://localhost:11434`)
+- Docker & Docker Compose (optional, for containerized deployment)
 
-```bash
-python3 -m http.server 8080
-```
-
-Open **http://localhost:8080**. The page currently renders bundled sample data.
-
-### System Telemetry Collector
+### Install from Source
 
 ```bash
-python3 collector/system_info.py
+git clone https://github.com/OneByJorah/BenchDash.git
+cd BenchDash
+chmod +x install.sh
+./install.sh
 ```
 
-Writes a hardware/software report to `system_info.json` (CPU, RAM, GPU/VRAM via `nvidia-smi`, CUDA, drivers, OS, versions).
+### Run Locally
 
-## Configuration
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-Environment variables consumed by the upcoming backend (see `.env.example`; currently informational):
+# Launch the dashboard server
+python -m http.server 8081
+# Open http://localhost:8081 in your browser
+```
+
+### Run with Docker
+
+```bash
+docker compose up -d
+# Open http://localhost:8081
+```
+
+---
+
+## Docker
+
+The included `Dockerfile` builds a lightweight Alpine-based image that serves the static dashboard via `thttpd` on port **8081**.
+
+```bash
+# Build and start
+docker compose up -d --build
+
+# Check status
+docker compose ps
+
+# View logs
+docker compose logs -f
+
+# Stop
+docker compose down
+```
+
+**Environment Variables** (via `.env` or `docker-compose.yml`):
 
 | Variable | Default | Description |
 |---|---|---|
-| `OLLAMA_HOST` | `host.docker.internal:11434` | Ollama API endpoint |
+| `OLLAMA_HOST` | `http://host.docker.internal:11434` | Ollama API endpoint |
+| `BENCH_DATA_DIR` | `/data` | Directory for benchmark results |
 | `DASHBOARD_PORT` | `8081` | Dashboard port |
-| `DASHBOARD_HOST` | `0.0.0.0` | Dashboard bind address |
-| `BENCH_SKIP_MEDIA` | `0` | Skip image/audio/video tests when set to `1` |
 
-## Target Architecture
-
-```
-                    ┌─────────────────┐
-                    │   Browser / UI   │
-                    └────────┬────────┘
-                             │ HTTP
-                    ┌────────▼────────┐
-                    │   Flask App     │
-                    │  (app.py)       │
-                    └───┬────┬────┬───┘
-                        │    │    │
-               ┌────────┤    │    ├──────────┐
-               ▼             ▼               ▼
-        ┌──────────┐  ┌──────────┐  ┌──────────────┐
-        │Benchmark │  │  Results │  │   Scheduler  │
-        │  Runner  │  │ Analyzer │  │  (cron-ish)  │
-        └────┬─────┘  └────┬─────┘  └──────────────┘
-             │             │
-             ▼             ▼
-        ┌──────────┐  ┌──────────┐
-        │  Ollama  │  │  SQLite  │
-        │   API    │  │  / JSON  │
-        └──────────┘  └──────────┘
-```
-
-*Not yet implemented — target architecture for the benchmarking backend.*
+---
 
 ## Project Structure
 
 ```
 BenchDash/
-├── index.html                  # Standalone dashboard UI (sample data)
+├── index.html            # Standalone dashboard UI (no build step)
 ├── collector/
-│   └── system_info.py          # System telemetry collector
+│   └── system_info.py    # System telemetry collector (CPU, GPU, RAM)
 ├── docs/
-│   ├── assets/                 # Banner + dashboard screenshot
-│   └── screenshots/            # Additional UI captures
-├── .github/                    # CI (CodeQL), issue templates, Dependabot
-├── Dockerfile                  # Container definition (backend pending)
-├── docker-compose.yml          # Service scaffolding (backend pending)
-└── README.md
+│   └── assets/           # Banner, screenshots
+├── Dockerfile            # Alpine + thttpd, serves on port 8081
+├── docker-compose.yml    # Container orchestration with healthcheck
+├── install.sh            # Linux/macOS installer
+├── install.ps1           # Windows installer
+├── requirements.txt      # Python dependencies
+├── j1.yaml               # Benchmark task definitions
+├── INTENT.md             # Design specification
+├── LICENSE               # MIT License
+└── .env.example          # Environment variable template
 ```
 
-## Planned Benchmark Metrics
+---
 
-| Metric | Description |
+## Architecture
+
+```
+┌─────────────┐     ┌──────────────┐     ┌────────────────┐
+│  Dashboard  │────▶│  Collector   │────▶│     Ollama     │
+│  (HTML/JS)  │     │  (Python)    │     │  (Local LLMs)  │
+└─────────────┘     └──────────────┘     └────────────────┘
+       │                    │
+       │                    ▼
+       │            ┌──────────────┐
+       └───────────▶│  JSON Store  │
+                    │  (Results)   │
+                    └──────────────┘
+```
+
+---
+
+## Implementation Status
+
+| Component | Status |
 |---|---|
-| **Tokens/sec** | Generation speed |
-| **Time to First Token** | Response latency |
-| **Quality Score** | Response quality rating (0.1–1.0) |
-| **Memory Usage** | RAM consumption (GB) |
-| **VRAM Usage** | GPU memory (if applicable) |
-| **Success Rate** | Percentage of successful completions |
+| System Info Collector | ✅ Implemented |
+| Dashboard UI (sample data) | ✅ Implemented |
+| Docker packaging | ✅ Implemented |
+| Install scripts | ✅ Implemented |
+| Benchmark Engine | 🔲 Planned |
+| Scoring Pipeline | 🔲 Planned |
+| JSON Persistence | 🔲 Planned |
+| Scheduler (Cron) | 🔲 Planned |
+| Notifications | 🔲 Planned |
+| Flask/FastAPI Backend | 🔲 Planned |
 
-## Roadmap
+---
 
-- [x] System telemetry collector
-- [x] Standalone dashboard UI
-- [ ] Benchmark runner engine
-- [ ] Multi-agent mode comparison
-- [ ] Real-time streaming results
-- [ ] Telegram notifications
-- [ ] Historical trend charts
+## Development
 
-See [ROADMAP.md](ROADMAP.md) for full details.
+```bash
+# Clone and enter the repo
+git clone https://github.com/OneByJorah/BenchDash.git
+cd BenchDash
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate   # Windows
+
+# Install dev dependencies
+pip install -r requirements.txt
+
+# Run the dashboard locally
+python -m http.server 8081
+```
+
+---
 
 ## Contributing
 
-Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards.
+Contributions are welcome! Please read the [INTENT.md](INTENT.md) for the design specification before submitting a PR.
 
-## Security
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m "Add your feature"`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
 
-For security concerns, see [SECURITY.md](SECURITY.md). Report vulnerabilities to **security@jorahone.com**.
+---
 
 ## License
 
-[MIT](LICENSE) © Jhonattan L. Jimenez (OneByJorah)
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
 <p align="center">
-  Built with 🌴 by <a href="https://github.com/OneByJorah">OneByJorah</a> ·
-  <a href="https://jorahone.com">jorahone.com</a>
+  Built with care by <a href="https://github.com/OneByJorah">OneByJorah</a>
 </p>
