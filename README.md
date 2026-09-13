@@ -2,16 +2,15 @@
 
 ![BenchDash banner](docs/assets/banner.svg)
 
-# BenchDash
+# .venv\Scripts\activate    # Windows
 
-**A benchmarking platform for local LLMs on Ollama** — auto-discover models, run structured tests, and compare accuracy, latency, and throughput.
 
-<a href="https://github.com/OneByJorah/BenchDash/stargazers"><img src="https://img.shields.io/github/stars/OneByJorah/BenchDash?style=flat-square" alt="Stars"></a>
-<a href="https://github.com/OneByJorah/BenchDash/commits"><img src="https://img.shields.io/github/last-commit/OneByJorah/BenchDash?style=flat-square" alt="Last commit"></a>
-<a href="LICENSE"><img src="https://img.shields.io/github/license/OneByJorah/BenchDash?style=flat-square" alt="License"></a>
-<img src="https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square&logo=python&logoColor=white" alt="Python">
-<img src="https://img.shields.io/badge/ollama-000000?style=flat-square&logo=ollama&logoColor=white" alt="Ollama">
-<img src="https://img.shields.io/badge/status-pre--alpha-orange?style=flat-square" alt="Pre-alpha">
+
+[![GitHub release](https://img.shields.io/github/v/release/OneByJorah/BenchDash?color=f97316&label=release&logo=github)](https://github.com/OneByJorah/BenchDash/releases)
+[![PyPI version](https://img.shields.io/pypi/v/benchdash?color=f97316&label=pip&logo=pypi)](https://pypi.org/project/benchdash/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?color=FFB300&logo=open-source-initiative&logoColor=FFB300)](https://opensource.org/licenses/MIT)
 
 </div>
 
@@ -19,12 +18,19 @@
 
 ## What This Is
 
-Comparing local models usually means ad-hoc prompts and a stopwatch. BenchDash is a design-first platform that aims to make that repeatable: discover the models Ollama has loaded, run a fixed task suite, and rank results on accuracy, latency, and token throughput. Today the collector, dashboard, and packaging exist; the benchmark engine and scoring pipeline are planned.
+Lightweight system benchmarking dashboard — CPU, memory, disk, and network performance metrics with Docker deployment.
 
-> [!WARNING]
-> **Pre-alpha.** The dashboard currently displays sample/demo data. The benchmark engine, scoring pipeline, JSON persistence, and backend server are not yet implemented — this scaffolding is not functional end-to-end.
+Built for operators who want a self-hosted, Docker-deployed solution they control.
 
 ## Quick Start
+
+### pip
+
+```bash
+pip install benchdash
+```
+
+### Docker (recommended)
 
 ```bash
 git clone https://github.com/OneByJorah/BenchDash.git
@@ -32,113 +38,70 @@ cd BenchDash
 docker compose up -d
 ```
 
-Open **http://localhost:8081**. Run the dashboard locally with `python -m http.server 8081` instead if you prefer.
-
-## Features
-
-- **System telemetry collector** — gathers CPU, GPU, VRAM, CUDA, drivers, memory, and OS info in Python.
-- **Static dashboard** — standalone `index.html` with no build step; shows model comparisons, scores, and system metrics.
-- **Ollama integration (planned)** — queries the local Ollama API to enumerate models and run inference benchmarks.
-- **Configurable benchmarks** — YAML task definitions for categories, weights, and scoring.
-- **JSON persistence (planned)** — timestamped result files for historical comparison.
-- **Docker support** — Alpine image and Compose file for containerized deployment.
-- **Install scripts** — `install.sh` (Linux/macOS) and `install.ps1` (Windows).
-
-## Architecture
-
-```
-┌─────────────┐     ┌──────────────┐     ┌────────────────┐
-│  Dashboard  │────▶│  Collector   │────▶│     Ollama     │
-│  (HTML/JS)  │     │  (Python)    │     │  (Local LLMs)  │
-└─────────────┘     └──────────────┘     └────────────────┘
-       │                    │
-       │                    ▼
-       │            ┌──────────────┐
-       └───────────▶│  JSON Store  │
-                    │  (Results)   │
-                    └──────────────┘
-```
-
-## Implementation Status
-
-| Component | Status |
-|---|---|
-| System info collector | Implemented |
-| Dashboard UI (sample data) | Implemented |
-| Docker packaging | Implemented |
-| Install scripts | Implemented |
-| Benchmark engine | Planned |
-| Scoring pipeline | Planned |
-| JSON persistence | Planned |
-| Scheduler (cron) | Planned |
-| Notifications | Planned |
-| Flask/FastAPI backend | Planned |
-
-## Configuration
-
-| Variable | Default | Description |
-|---|---|---|
-| `OLLAMA_HOST` | `http://host.docker.internal:11434` | Ollama API endpoint |
-| `DASHBOARD_PORT` | `8081` | Dashboard port |
-| `DASHBOARD_HOST` | `<ip-address>` | Dashboard bind host |
-| `BENCH_SKIP_MEDIA` | `0` | Set to `1` to skip image/audio/video tests |
-| `BENCH_DATA_DIR` | `/app/results` | Directory for benchmark results |
-| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | — | Optional notifications |
-
-## Development
+### From Source
 
 ```bash
 git clone https://github.com/OneByJorah/BenchDash.git
 cd BenchDash
-
-python -m venv .venv
-source .venv/bin/activate   # Linux/macOS
-# .venv\Scripts\activate    # Windows
-
-python -m http.server 8081  # serve the dashboard locally
+pip install -r requirements.txt
+python3 app.py
 ```
 
-See [INTENT.md](INTENT.md) for the design specification.
+## Install
 
-## Project Structure
+### pip
 
+```bash
+pip install benchdash
 ```
-BenchDash/
-├── index.html            # Standalone dashboard UI (no build step)
-├── collector/
-│   └── system_info.py    # System telemetry collector (CPU, GPU, RAM)
-├── docs/assets/          # Banner, screenshots
-├── Dockerfile            # Alpine + thttpd, serves on port 8081
-├── docker-compose.yml    # Container orchestration with healthcheck
-├── install.sh            # Linux/macOS installer
-├── install.ps1           # Windows installer
-├── requirements.txt      # Python dependencies
-├── j1.yaml               # Benchmark task definitions
-├── INTENT.md             # Design specification
-└── .env.example          # Environment variable template
+
+### Docker
+
+```bash
+git clone https://github.com/OneByJorah/BenchDash.git
+cd BenchDash
+docker compose up -d
 ```
+
+### From Source
+
+```bash
+git clone https://github.com/OneByJorah/BenchDash.git
+cd BenchDash
+pip install -r requirements.txt
+python3 app.py
+```
+
+## Features
+
+- **Self-hosted** — no cloud dependencies, run on your own hardware
+- **Docker Compose** — full stack deployment with one command
+- **pip package** — install via PyPI
+- **Dark theme** — operational, clean UI
+
+- **System benchmarking** — CPU, memory, disk, network benchmarks
+- **Performance metrics** — real-time and historical data
+- **Comparison views** — compare before/after results
+- **Docker deployment** — lightweight single-container or compose
+- **Dark theme** — minimal, data-focused UI
 
 ## Tech Stack
 
-Python 3.11+ · Ollama · HTML/CSS/JS · Docker (Alpine + thttpd) · Docker Compose
+- **Backend** — Python 3.11+, pydantic, pyyaml
+- **Deployment** — Docker Compose, pip install
+- **Configuration** — environment variables, config files
 
-## Screenshots
+## Package Badges
 
-| View | |
-|---|---|
-| ![desktop](docs/screenshots/dashboard-desktop.png) | ![full dashboard](docs/screenshots/dashboard-full.png) |
-| ![mobile](docs/screenshots/dashboard-mobile.png) | ![main viewport](docs/screenshots/main.viewport.full.png) |
+[![GitHub release](https://img.shields.io/github/v/release/OneByJorah/BenchDash?color=f97316&label=release&logo=github)](https://github.com/OneByJorah/BenchDash/releases)
+[![PyPI version](https://img.shields.io/pypi/v/benchdash?color=f97316&label=pip&logo=pypi)](https://pypi.org/project/benchdash/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?color=FFB300&logo=open-source-initiative&logoColor=FFB300)](https://opensource.org/licenses/MIT)
 
 ## Contributing
 
-Contributions are welcome. Please read [INTENT.md](INTENT.md) for the design specification before submitting a PR. [Open an issue](https://github.com/OneByJorah/BenchDash/issues).
+Contributions are welcome. [Open an issue](https://github.com/OneByJorah/BenchDash/issues) to report a bug or request a feature.
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
-## Connect
-
-- [jorahone.com](https://jorahone.com)
-- [GitHub Org](https://github.com/OneByJorah)
-- [info@jorahone.com](mailto:info@jorahone.com)

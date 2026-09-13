@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "benchdash"
+version = "1.0.0"
+description = "Lightweight system benchmarking dashboard — CPU, memory, disk, and network performance metrics with Docker deployment."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "OneByJorah", email = "info@jorahone.com"}]
+keywords = ["benchdash", "docker", "self-hosted", "jorahone", "onebyjorah"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Systems Administration",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "flake8"]
+
+[project.urls]
+Homepage = "https://github.com/OneByJorah/BenchDash"
+Repository = "https://github.com/OneByJorah/BenchDash"
+Issues = "https://github.com/OneByJorah/BenchDash/issues"
+
+[tool.setuptools.packages.find]
+include = ["benchdash*"]
